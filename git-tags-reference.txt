@@ -1,0 +1,11 @@
+# reference for git logs / tag creation
+# information for changing global git editor preference
+
+git log --pretty=oneline     - prints all commits on a single line
+
+git tag -a v1.0 (then the first 4 of the commit number you want to tag)
+
+git push origin (git push does not push tags)
+
+# make idle global editor
+git config --global core.editor "idle"
