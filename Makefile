@@ -1,23 +1,23 @@
 .PHONY: all check clean debug profile valgrind math
 # compile flags
 CFLAGS := -Wall -Werror -Wextra -Wpedantic -Wwrite-strings -Wstack-usage=1024
-CFLAGS += -Wfloat-equal -Waggregate-return -Winline 
+CFLAGS += -Wfloat-equal -Waggregate-return -Winline -Wvla
 DEBUG_CFLAGS := -g -p -fprofile-arcs -ftest-coverage
 PROFILE_CFLAGS := -g -pg
 # compile commands
 DEBUG_GDB := gdb
 CC := gcc
 # files
-SRCS := filename.c  # source files
-OBJS := filename.o  # object files created
+SRCS := dinner.c dinner-funcs.c  # source files
+OBJS := dinner.o dinner-funcs.o  # object files created
 # executables created
-EXE := filename  # main executable
-EXE_PROFILE := filename_profile  # profile executable
-EXE_DEBUG := filename_debug  # debug executable
+EXE := dinner  # main executable
+EXE_PROFILE := dinner_profile  # profile executable
+EXE_DEBUG := dinner_debug  # debug executable
 # additional variables
-CLEAN_ALL_FILES := *txt *.o *.out $(EXE) $(EXE_DEBUG) $(EXE_PROFILE)
+CLEAN_ALL_FILES := *.o *.out $(EXE) $(EXE_DEBUG) $(EXE_PROFILE)
 MATH_LINK := -lm  # math.h funcs defined in libm.a. -lm links to libm.a library.
-VALGRIND := valgrind --track-origins=yes --leak-check=full --show-leak-kinds=all
+VALGRIND := valgrind --track-origins=yes --leak-check=full --show-leak-kinds=all -s
 
 all: $(EXE)
 
@@ -42,12 +42,15 @@ $(EXE_DEBUG): $(OBJS)
 	$(CC) $(CFLAGS) $(DEBUG_CFLAGS) $^ -o $@ 
 
 #creates EXE_DEBUG executable
-debug: CFLAGS += $(DBUG_FLAGS)
-debug: $(EXE_DEBUG)
+debug: $(OBJS)
+	$(CC) -g $(SRCS) -o $(EXE_DEBUG) $(CFLAGS)
+# debug: CFLAGS += $(DBUG_CFLAGS)
+# debug: $(EXE_DEBUG)
 
 # removes specified file types from directory
 clean: 
 	rm -f $(CLEAN_ALL_FILES)
+	clear
 
 # executes EXE
 check: all
@@ -59,4 +62,4 @@ math: $(OBJS)
 
 # checks for memory leaks from EXE
 valgrind: all
-	$(VALGRIND) ./$(EXE)
+	$(VALGRIND) ./$(EXE_DEBUG)
