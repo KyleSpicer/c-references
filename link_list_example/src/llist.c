@@ -195,45 +195,43 @@ extract_tail(llist_t * p_llist)
 
     p_llist->count--;
     data = curr->data;
-    free(curr);
-    
-    // if(!curr) // if empty
-    // {
-    //     return data; 
-    // }
-
-    // // while((curr->next != p_llist->tail) || (curr->next != NULL))
-    // while(curr->next && curr->next->next)
-    // {
-    //     curr = curr->next;
-    // }
-
-    // temp = p_llist->tail;
-
-    // if (!curr->next)
-    // {
-    //     p_llist->tail = NULL;
-    //     p_llist->head = NULL;
-    // }
-    // else
-    // {
-    //     p_llist->tail = curr;
-    //     curr->next = NULL;
-    // }
-    
-    // data = temp->data;
-    
+    free(curr);   
     return data;
 }
 
-// int extract_from_back
+/* push node to top of stack */
+int push(llist_t * p_stk, void * data)
+{
+    return llist_insert_front(p_stk, data);
+}
 
-/* end of file */
+/* pop node from top of stack */
+void * pop(llist_t * p_stk)
+{
 
+    return extract_head(p_stk);
+}
 
-// add_to_end(node_t ** head, int data)
-// add_after_target(node_t * head, int target, int data)
-// add_before_target(node_t * head, int target, int data)
-// extract_after(node_t * head, int target)
-// extract_before(node_t * head, int target)
-// peek function
+/* add back -enqueue */
+int enqueue(llist_t * llist, void * data)
+{
+    return llist_insert_back(llist, data);
+}
+
+/* remove front - dequeue */
+void * dequeue(llist_t * p_queue)
+{
+    return extract_head(p_queue);
+}
+
+/* returns llist->count value */
+int size(llist_t * llist)
+{
+    return llist->count;
+}
+
+/* peek head data */
+void * peek (llist_t * llist)
+{
+    return llist->head->data;
+}

@@ -17,4 +17,22 @@ void * extract_head(llist_t * p_llist);
 
 void * extract_tail(llist_t * p_llist);
 
+/* push node to top of stack */
+int push(llist_t * p_stk, void * data);
+
+/* pop node from top of stack */
+void * pop(llist_t * p_stk);
+
+/* add back -enqueue */
+int enqueue(llist_t * llist, void * data);
+
+/* remove front - dequeue */
+void * dequeue(llist_t * p_queue);
+
+/* size of list, stack, queue */
+int size(llist_t * llist);
+
+/* peek head data */
+void * peek (llist_t * llist);
+
 #endif /* LLIST_H */
