@@ -62,6 +62,8 @@ int main()
     printf("\n");
     
     qsort(names, 4, sizeof(char *), custom_strcmp);
+    // qsort(names, 4, sizeof(char *), strcmp);
+    
 
     printf("After: ");
     for (int i = 0; i < 4; i++)
