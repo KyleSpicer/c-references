@@ -6,6 +6,8 @@
 
 #define MAX_CHAR_SIZE 8
 
+// https://www.cs.princeton.edu/courses/archive/spr01/cs126/exercises/adt.html
+
 typedef struct letter_t 
 {
     char c;
