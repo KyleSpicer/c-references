@@ -23,8 +23,8 @@ int int_sort(const void * first, const void * second)
 
 int custom_strcmp(const void *first, const void *second)
 {
-    char *name1 = (char *)first;
-    char *name2 = (char *)second;
+    char *name1 = *(char **)first;
+    char *name2 = *(char **)second;
 
     return strcmp(name1, name2);
 }
@@ -51,7 +51,8 @@ int main()
     }
     printf("\n\n");
 
-    char names[4][8] = {"Kyle", "Tim", "Jacob", "Chante"};
+    // char names[4][8] = {"Kyle", "Tim", "Jacob", "Chante"};
+    char *names[4] = {"Kyle", "Tim", "Jacob", "Chante"};
 
     printf("--- Q-Sort with strings  ---\n");
     printf("Names: ");
