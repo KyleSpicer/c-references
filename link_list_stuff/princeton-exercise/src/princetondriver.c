@@ -52,6 +52,7 @@ int main()
     printf("\n\n");
 
     /* Using two stacks to mimic queue behavior */
+    /* https://www.geeksforgeeks.org/queue-using-stacks/ */
     printf("Exercise 11: \n");
     const char * input = "EAS*Y*QUE***ST***IO*N***";
     printf("%s    ==>  ", input);
