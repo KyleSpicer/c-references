@@ -15,6 +15,7 @@ typedef struct letter_t
 
 void pushpop(const char * input);
 void putget(const char * input);
+void pushpop_stackque(const char * input);
 
 int main()
 {
@@ -49,6 +50,15 @@ int main()
     printf("%s ==>  ", fourth_input);
     putget(fourth_input);
     printf("\n\n");
+
+    /* Using two stacks to mimic queue behavior */
+    printf("Exercise 11: \n");
+    const char * input = "EAS*Y*QUE***ST***IO*N***";
+    printf("%s    ==>  ", input);
+    pushpop_stackque(input);
+    printf("\n\n");
+
+
 }
 
 void pushpop(const char * input)
@@ -115,4 +125,53 @@ void putget(const char * input)
     llist_destroy(queue, free);
 }
 
+void pushpop_stackque(const char * input)
+{
+    llist_t * stack = llist_create();
+    llist_t * stack2 = llist_create();
+
+    size_t len = strlen(input);
+    letter_t *letter = NULL;
+
+    for (size_t i = 0; i < len; ++i)
+    {
+        if (len < 1)
+        {
+            printf("Error. Nothing to pop.");
+            break;
+        }
+
+        switch(input[i])
+        {
+            case '*':
+                if (size(stack) == 0 && size(stack2) == 0)
+                {
+                    printf("Error.\n");
+                }
+                if(size(stack2) == 0)
+                {
+                    while(size(stack) > 0)
+                    {
+                        letter = pop(stack);
+                        push(stack2, letter);
+                    }
+                }        
+                letter = pop(stack2);
+                printf("%c", letter->c);
+                free(letter);
+                break;
+
+            default:
+                letter = calloc(1, sizeof(*letter));
+                letter->c = input[i];
+                push(stack, (void *)letter);
+                break;
+        }
+    }
+    printf("\n");
+
+    llist_destroy(stack, free);
+    llist_destroy(stack2, free);
+
+}
 /* end of file */
