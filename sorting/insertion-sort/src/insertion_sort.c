@@ -8,7 +8,7 @@ void insertion_sort(int data[], int size);
 
 int main()
 {
-    int nums[10] = { 5, 3, 6, 11, 1, 2, 4, 4, 12, 3};
+    int nums[10] = { 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 };
     int nums_size = sizeof(nums) / sizeof(int);
 
     printf("Before: ");
