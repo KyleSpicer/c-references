@@ -1,6 +1,30 @@
+/**
+ * @file qsort_comp_funcs.c
+ * @author Kyle Spicer
+ * @brief program shows the full logic of creating comparison function for use
+ * with qsort. compare_those_nums demonstates the full logic of receiving
+ * arguments and stealth compare completes all logic in one line.
+ * @version 0.1
+ * @date 2022-11-07
+ * 
+ * @copyright Copyright (c) 2022
+ * 
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 
+
+/**
+ * @brief compare_those_nums: takes void * data, type casts as an int and
+ * assigns to an int *. Then the int * is assigned to an int variable for use
+ * in comparing the two types. After, the variables are compared and the 
+ * appropriate value is returned.
+ * 
+ * @param data1 
+ * @param data2 
+ * @return int 
+ */
 int compare_those_nums(const void * data1, const void * data2)
 {
     int *num1 = (int*)data1; // taking void *, casting to int, assigning to an int *
@@ -24,6 +48,14 @@ int compare_those_nums(const void * data1, const void * data2)
     }
 }
 
+/**
+ * @brief compare_stealth_nums: completes the same logic as compare_those_nums
+ * but only in one line.
+ * 
+ * @param data1 
+ * @param data2 
+ * @return int 
+ */
 int compare_stealth_nums(const void * data1, const void * data2)
 {
     // same logic as compare those nums, but completes everything in one line
