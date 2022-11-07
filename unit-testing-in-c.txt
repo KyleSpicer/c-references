@@ -1,8 +1,0 @@
-# This file holds references for unit testing in C
-
-# reference for check.h library
-
-https://libcheck.github.io/check/doc/doxygen/html/check_8h.html
-
-# Step by step creating test suite
-https://www.ccs.neu.edu/home/skotthe/classes/cs5600/fall/2015/labs/intro-check.html
