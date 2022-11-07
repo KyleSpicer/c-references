@@ -1,0 +1,69 @@
+.TH websters 1 "September 2022" "user manual"
+.SH NAME
+.PP
+websters_main.c - 170D WOBC Module i Practical 2A
+.SH
+.PP
+.SH SYNOPSIS
+.PP
+usage - ./webby
+.PP
+.SH DESCRIPTION
+.PP
+This practical required students to write a dictionary program that prompts a 
+user to enter up to ten word/definition combinations. The program would store 
+the combination and ask the user to enter a word and produce the full definition
+for that word. Afterwards, the program would create and write the completed 
+definitions to a text file named my_dictionary.txt Additional runs of the
+program should not delete precious definitions entered into the dictionary.
+.PP
+.SH FILES
+.PP
+websters_main.c, websters.c, websters.h, Makefile
+.SH FUNCTION DESCRIPTIONS
+.PP
+.B char *combine_definition(char *word, char *definition)      
+- accepts a pointer to user input word and definition. Calculates the size of each 
+and adds a separator " : " between the two words. Memory is dynamically 
+allocated via calloc and a pointer to the completed string is returned to the 
+main function. Memory must be freed from the main function after completed 
+definition pointers are used. (Example: combine_definition(hello, world); 
+returns: hello : world)
+
+.B void user_word_search(char **pp_completed_definitions, int counter) 
+- accepts a
+pointer to pointers and the total count of pointers to be used within. First,
+the user is prompted to enter a word to search or enter exit to leave the 
+function. The newline character is removed from user input word and is compared
+with the correct amount of completed definitions via the strstr function. If the
+end of the loop is reached, the program alerts the user and prompts again to
+enter a word or exit the function. If a match is found, the program will print
+the complete definition to the console. 
+
+.B void print_completed_definitions(char **pp_completed_definitions) 
+- accepts a
+pointer to pointers. Dereferences each pointer to a completed definition and 
+prints all definitions to the console.
+
+.B void create_and_populate_file(char **pp_completed_definitions) 
+- accepts a
+pointer of pointers. The file my_dictionary.txt is opened with the "a+" mode
+string. This fulfills the project requirement to populate a file and append the
+same file with subsequent runs of the program. The pointers are dereferenced and
+each complete definition is written to a single line within the file. 
+Afterwards, the program utilizes the rewind() function to reset the file pointer
+to the beginning. The program then asks to user if they would like to read from
+the file that was just created. If 'y' is entered, The function fgets() and
+fputs() is utilizes to read from the files and display the information from the
+stream to the console then closes the file. The usleep() function is used for 
+aesthetic to display each line, one at a time. If 'n' was entered, the function
+closes the file and ends.
+
+.PP
+.SH AUTHOR
+CW2 Kyle Spicer, 170D Warrant Officer Basic Course
+
+contact email: kyle.d.spicer.mil@army.mil, kyledspicer@gmail.com
+.SH SEE ALSO
+.PP
+strstr(3), fputs(3), fgets(3), fseek(3), usleep(3)
