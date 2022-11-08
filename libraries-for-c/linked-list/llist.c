@@ -40,12 +40,13 @@ create_node(void * data)
 }
 
 void
-llist_destroy(llist_t * p_llist, void (*destroy_data)(void *))
+llist_destroy(llist_t **llist, void (*destroy_data)(void *))
 {
-    if (!p_llist)
+    if (!llist)
     {
         return;
     }
+    llist_t *p_llist = *llist;
 
     node_t * temp = p_llist->head;
     while (temp)
@@ -56,7 +57,8 @@ llist_destroy(llist_t * p_llist, void (*destroy_data)(void *))
         temp = p_llist->head;
     }
 
-    free(p_llist);
+    free(*llist);
+    *llist = NULL;
 }
 
 int
@@ -208,13 +210,15 @@ int push(llist_t * p_stk, void * data)
 /* pop node from top of stack */
 void * pop(llist_t * p_stk)
 {
-
     return extract_head(p_stk);
 }
 
 /* add back -enqueue */
 int enqueue(llist_t * llist, void * data)
 {
+    if(!llist || !data){
+        return 0;
+    }
     return llist_insert_back(llist, data);
 }
 
@@ -225,7 +229,7 @@ void * dequeue(llist_t * p_queue)
 }
 
 /* returns llist->count value */
-int size(llist_t * llist)
+int list_size(llist_t * llist)
 {
     return llist->count;
 }
@@ -236,7 +240,7 @@ void * peek (llist_t * llist)
     return llist->head->data;
 }
 
-int empty(struct llist_t** stack)
+int is_list_empty(struct llist_t* list)
 {
-	return !*stack;
+	return list->count;
 }

@@ -5,7 +5,7 @@ typedef struct llist_t llist_t;
 
 llist_t * llist_create();
 
-void llist_destroy(llist_t * llist, void (*destroy_data)(void *));
+void llist_destroy(llist_t ** llist, void (*destroy_data)(void *));
 
 int llist_insert_front(llist_t * llist, void * data);
 
@@ -30,10 +30,10 @@ int enqueue(llist_t * llist, void * data);
 void * dequeue(llist_t * p_queue);
 
 /* size of list, stack, queue */
-int size(llist_t * llist);
+int list_size(llist_t * llist);
 
 /* determines if any values are present */
-int empty(struct llist_t** stack);
+int is_list_empty(struct llist_t* stack);
 
 /* peek head data */
 void * peek (llist_t * llist);
