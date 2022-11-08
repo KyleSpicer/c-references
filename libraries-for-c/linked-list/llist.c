@@ -1,3 +1,12 @@
+/**
+ * @file llist.h
+ * @author Kyle Spicer
+ * 
+ * @brief
+ *  
+ * @date 2022-11-08
+ */
+
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -244,3 +253,4 @@ int is_list_empty(struct llist_t* list)
 {
 	return list->count;
 }
+/* end of file */
