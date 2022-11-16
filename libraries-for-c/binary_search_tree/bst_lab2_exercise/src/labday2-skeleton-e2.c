@@ -284,13 +284,15 @@ int read_and_write()
 		printf("failed to open file.\n");
 		return 0;
 	}
-
+	printf("Successfully opened \"numbers.txt\"\n");
 	// insert into bst from file
 	while(fscanf(fp, "%d ", &number) != EOF) {
 		new_bst = insert_bst(new_bst, number);
 	}
+	printf("Successfully read contents from file and added to new binary search tree\n");
 
 	fclose(fp);
+	printf("Successfully closed \"numbers.txt\"\n\n");
 
 	fp = fopen("numbers_sorted.txt", "w");
 
@@ -298,7 +300,13 @@ int read_and_write()
 		printf("failed to open file.\n");
 		return 0;
 	}
+	printf("Successfully opened \"numbers_sorted.txt\"\n");
+
 	inorder_bst_to_file(new_bst, fp);
+	printf("Successfully wrote contents from new binary search tree to \"numbers_sorted.txt\"\n");
+
+	fclose(fp);
+	printf("Successfully closed \"numbers_sorted.txt\"\n\n");
 
 	return 0;
 }
@@ -392,6 +400,6 @@ int main()
 	       left_right_children_count(root_5, children)[0],
 	       left_right_children_count(root_5, children)[1]);
 
-	printf("\nRunning read and Write:\n");
+	printf("\n\nRunning read and Write:\n\n");
 	read_and_write();
 }
