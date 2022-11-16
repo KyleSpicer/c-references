@@ -251,7 +251,7 @@ int *left_right_children_count(struct node *root, int *children)
 struct node * insert_bst(struct node * root, int to_insert)
 {
 	if (!root) {
-		return new_node(to_insert);
+		return 0;
 	}
 
 	if (to_insert > root->value) {
@@ -311,6 +311,17 @@ int read_and_write()
 	return 0;
 }
 
+int recursive_destroy_it_all(struct node *node)
+{
+	if(!node) {
+		return 0;
+	}
+
+	recursive_destroy_it_all(node->left);
+	recursive_destroy_it_all(node->right);
+	free(node);	
+}
+
 int main()
 {
 	// arrays
@@ -318,6 +329,8 @@ int main()
 	int children[2] = { 0, 0 };
 
 	printf("Exercise 2 Testing Utilities:\n");
+	printf("----------------------------------\n");
+
 
 	// tree 'root_1'
 	struct node *root_1 = new_node(1);
@@ -354,40 +367,51 @@ int main()
 	printf("height of root_3: %d\n", height(root_3));
 	printf("height of root_4: %d\n", height(root_4));
 
-	printf("-----");
-	printf("traversals of root_4:\n");
+	
+	printf("\n\nTraversals of root_4: \n");
+	printf("----------------------------------\n");
+
 	printf("In-order traversal: ");
 	recursive_inorder_traversal(root_4);
-	printf("\n Pre-order traversal: ");
+	printf("\nPre-order traversal: ");
 	recursive_preorder_traversal(root_4);
-	printf("\n Post-order traversal: ");
+	printf("\nPost-order traversal: ");
 	recursive_postorder_traversal(root_4);
 
-	printf("\nPrinting levels of tree:\n");
+	printf("\n\n\nPrinting levels of tree:\n");
+	printf("----------------------------------\n");
+
 	printf("Level 3 of root_4: ");
 	print_height_of_tree(root_4, 3);
-	printf("\n-----\n");
+	printf("\n");
 
 	binary_search(binary, 29);
-	printf("-----\n");
 
+	printf("\n\nVerifying binary search tree properties:\n");
+	printf("------------------------------\n");
 	printf("not a binary search tree: %d\n", verify_bst(root_4));
-	printf("this is a binary search tree: %d\n", verify_bst(binary));
-	printf("------\n");
-	printf("Before flipping:\n");
+	printf("this is a binary search tree: %d\n\n", verify_bst(binary));
+
+
+	printf("\nFlipping BST around:\n");
+	printf("------------------------------\n");
+	printf("Before flipping:      ");
 	recursive_inorder_traversal(binary);
 	flip(binary);
-	printf("\nAfter flipping:\n");
+	printf("\nAfter flipping:      ");
 	recursive_inorder_traversal(binary);
 	flip(binary);
-	printf("\nAfter flipping again\n");
+	printf("\nAfter flipping again: ");
 	recursive_inorder_traversal(binary);
 
 	struct node *backward_tree = build_backwards_bst(backwards, 7);
-	printf("\n-----\n");
+	printf("\n\n\nBuilding backwards BST from array:\n");
+	printf("------------------------------\n");
 	recursive_inorder_traversal(backward_tree);
 
-	printf("\nLeft and right children of binary tree: %d, %d",
+	printf("\n\n\nTotal children count from BST (left and right):\n");
+	printf("------------------------------\n");
+	printf("Left and right children of binary tree: %d, %d",
 	       left_right_children_count(binary, children)[0],
 	       left_right_children_count(binary, children)[1]);
 
@@ -400,6 +424,18 @@ int main()
 	       left_right_children_count(root_5, children)[0],
 	       left_right_children_count(root_5, children)[1]);
 
-	printf("\n\nRunning read and Write:\n\n");
+	printf("\n\n\nRunning read and Write:\n");
+	printf("------------------------------\n");
 	read_and_write();
+
+	recursive_destroy_it_all(root_1);
+	recursive_destroy_it_all(root_2);
+	recursive_destroy_it_all(root_3);
+	recursive_destroy_it_all(root_4);
+	recursive_destroy_it_all(root_5);
+	recursive_destroy_it_all(binary);
+	recursive_destroy_it_all(backward_tree);
+
+	
+
 }
