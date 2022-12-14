@@ -21,7 +21,7 @@ typedef struct llist_t llist_t;
  * 
  * @return llist_t* - pointer to llist that is ready for use
  */
-llist_t * llist_create();
+llist_t *llist_create();
 
 /**
  * @brief frees memory allocated for llist object
@@ -38,7 +38,7 @@ void llist_destroy(llist_t ** llist, void (*destroy_data)(void *));
  * @param data - data for new element you want to insert
  * @return int - returns 0 on error or 1 on success
  */
-int llist_insert_front(llist_t * llist, void * data);
+int llist_insert_front(llist_t * llist, void *data);
 
 /**
  * @brief creates node and places node at end of data structure
@@ -47,7 +47,7 @@ int llist_insert_front(llist_t * llist, void * data);
  * @param data - data for new element you want to insert
  * @return int - returns 0 on error or 1 on success
  */
-int llist_insert_back(llist_t * llist, void * data);
+int llist_insert_back(llist_t * llist, void *data);
 
 /**
  * @brief will print every element in a link list until NULL 
@@ -63,7 +63,7 @@ void llist_print(llist_t * llist, void (*print_data)(void *));
  * @param p_llist - llist you'd like to extract head node from
  * @return void* 
  */
-void * extract_head(llist_t * p_llist);
+void *extract_head(llist_t * p_llist);
 
 /**
  * @brief removes first element from llist
@@ -71,8 +71,7 @@ void * extract_head(llist_t * p_llist);
  * @param p_llist - llist you'd like to extract tail node from
  * @return void* 
  */
-void * extract_tail(llist_t * p_llist);
-
+void *extract_tail(llist_t * p_llist);
 
 /**
  * @brief push node to top of stack. Uses llist_insert_front function
@@ -81,7 +80,7 @@ void * extract_tail(llist_t * p_llist);
  * @param data - data you'd like to push
  * @return int - return llist_insert_front(p_stk, data)
  */
-int push(llist_t * p_stk, void * data);
+int push(llist_t * p_stk, void *data);
 
 /**
  * @brief pop node from top of stack
@@ -89,7 +88,7 @@ int push(llist_t * p_stk, void * data);
  * @param p_stk - pointer to stack struct
  * @return void* - return extract_head(p_stk)
  */
-void * pop(llist_t * p_stk);
+void *pop(llist_t * p_stk);
 
 /**
  * @brief add to back of queue
@@ -98,7 +97,7 @@ void * pop(llist_t * p_stk);
  * @param data - data you'd like to add
  * @return int - return llist_insert_back(llist, data)
  */
-int enqueue(llist_t * llist, void * data);
+int enqueue(llist_t * llist, void *data);
 
 /**
  * @brief remove from front of queue
@@ -106,7 +105,7 @@ int enqueue(llist_t * llist, void * data);
  * @param p_queue - queue you'd like to remove from
  * @return void* - return extract_head(p_queue)
  */
-void * dequeue(llist_t * p_queue);
+void *dequeue(llist_t * p_queue);
 
 /**
  * @brief size of list, stack, queue
@@ -122,7 +121,7 @@ int list_size(llist_t * llist);
  * @param stack - struct to preview
  * @return int - return list->count
  */
-int is_list_empty(struct llist_t* stack);
+int is_list_empty(struct llist_t *stack);
 
 /**
  * @brief views first element in strucutre you pass
@@ -130,8 +129,8 @@ int is_list_empty(struct llist_t* stack);
  * @param llist - strucutre you'd like to use
  * @return void* - return llist->head->data
  */
-void * peek (llist_t * llist);
+void *peek(llist_t * llist);
 
-#endif /* LLIST_H */
+#endif				/* LLIST_H */
 
 /* end of file */

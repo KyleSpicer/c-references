@@ -16,6 +16,24 @@
 // #if (double == 0)
 // #if (fabs(double) < DBL_EPSILON)
 
+void stack_print(tree * node)
+{
+	if (!node) {
+		return;
+	}
+
+	printf("Node: (%f, %f) distance is %f\n", node->x_coord,
+	       node->y_coord, node->distance);
+}
+
+void stack_destroy(llist_t * stack)
+{
+	if(!stack) {
+		return;
+	}
+	stack = NULL;
+}
+
 int main(int argc, char *argv[])
 {
 	// struct for get opt long options
@@ -23,6 +41,7 @@ int main(int argc, char *argv[])
 	static struct option long_options[] = {
 		{"file", required_argument, NULL, 'f'},
 		{"help", no_argument, NULL, 'h'},
+		{"distance", required_argument, NULL, 'd'}
 	};
 
 	char *file_name = NULL;
@@ -42,7 +61,12 @@ int main(int argc, char *argv[])
 			file_name = optarg;	// placing user provided file name in var
 			break;
 
-		case '?':	// unknown operators entered
+		case 'd':	// distance
+			// distance provided by user
+			break;
+
+		case '?':	// unknown operators handling
+			// help / usage statement
 			exit(1);
 			break;
 
@@ -54,88 +78,82 @@ int main(int argc, char *argv[])
 	// open and verify file
 	FILE *fp = file_open_and_verify(file_name);
 	if (!fp) {
-		printf("nothing\n");
+		printf("Unable to open %s\n", file_name);
 		exit(1);
 	}
 
-	int level = 2;
+	tree *root = NULL;	// create root
+	char buffer[MAXCHAR] = { '\0' };	// buffer for incoming line 
 
-	tree *root = NULL;
-
-	// create root
-	char buff[MAXCHAR] = { '\0' };
 	printf("\nCoordinates: \n");
-	while (fgets(buff, MAXCHAR, fp) != 0) {
-		int len = strnlen(buff, MAXCHAR) - 1;
-		if ('\n' == buff[len]) {
-			buff[len] = '\0';
+	// cycle through csv and grab each line
+	while (fgets(buffer, MAXCHAR, fp) != 0) {
+		int len = strnlen(buffer, MAXCHAR) - 1;
+		// replacing newline with NULL
+		if ('\n' == buffer[len]) {
+			buffer[len] = '\0';
 		}
-
-		if (!isdigit(*buff)) {	// skips over first line in file
+		// passes over first line in file, if not digits
+		if (!isdigit(*buffer)) {
 			continue;
 		}
 
-		char *broken = NULL;
-		double x_coor = strtod(buff, &broken);
-		if (',' != *broken) {
+		char *coords = NULL;
+		// to hold first portion of line (x val)
+		double x_coor = strtod(buffer, &coords);
+		if (',' != *coords) {
 			break;
 		}
-
-		double y_coor = strtod(broken + 1, &broken);
-		if ('\0' != *broken) {
+		// to hold second portion of line (y val)
+		double y_coor = strtod(coords + 1, &coords);
+		if ('\0' != *coords) {
 			break;
 		}
+		// printf("(x: %.1f, y: %.1f)\n", x_coor, y_coor);
 
-		printf("(x: %.1f, y: %.1f)\n", x_coor, y_coor);
-
-		tree *new_node = create_node(x_coor, y_coor, level);
-
-
+		tree *new_node = kd_create_node(x_coor, y_coor);
 		if (!root) {
 			root = new_node;
-    		level++;
 			root->number_nodes += 1;
 
 		} else {
+			// inserting node into KD tree
 			kd_tree_insert(root, new_node, 0);
 			root->number_nodes += 1;
-	    }
+		}
 	}
 
-	//////// VERIFYING FUNCTIONS AND VARIABLES HOLD CORRECT VALUES ////////////
-    // printf("levels = %d\n", level - 2);
-	// int nodecount = kd_tree_size(root);
-	// printf("Number of nodes = %d\n", nodecount);
-	// bool isitempty = kd_tree_is_empty(root);
-	// printf("Is KD Tree Empty? %d\n", isitempty);
+////////////////////////////////////////////////////////////////////////////////
 
-	// printf("Before inserting new node:\n");
-    // printvisual(root);
-	// tree * newnode = (create_node(15, 20, 2));
-	// kd_tree_insert(root, newnode);
-	// tree * anothernode = (create_node(1, 3, 2));
-	// kd_tree_insert(root, anothernode);
+	// printf("\nPopulated KD Tree: \n");
+	// printvisual(root);
 
-	
-	printvisual(root);
-	
-	// not valid
-	tree * searched = search(root, 2, 4, 0);
-	if(!searched) {
-		printf("(%d, %d) does not exist.\n", 2, 4);
-	}
-	
-	tree * rootsearch = search(root, 2, 3, 0);
-	if(rootsearch){
-		printf("(%0.f, %0.f) exists.\n", rootsearch->x_coord, rootsearch->y_coord);		
-	}
+	printf("\n------ START FUNCTION CHECKS ------\n\n");
 
-	tree *randsearch = search(root, 1, 4, 0);
-	if(randsearch) {
-		printf("(%0.f, %0.f) exists.\n", randsearch->x_coord, randsearch->y_coord);		
-	}
-	
-    delete(&root);
+	printf("Total nodes in tree: %d\n", root->number_nodes);
+
+	tree *minnode = minimum(root);
+	printf("Smallest Node = (%0.f, %0.f)\n", minnode->x_coord,
+	       minnode->y_coord);
+
+	tree *maxnode = maximum(root);
+	printf("Largest Node  = (%0.f, %0.f)\n", maxnode->x_coord,
+	       maxnode->y_coord);
+
+////////////////////////////////////////////////////////////////////////////////
+
+	printf("\n------ CHECKING NEAREST NEIGHBOR FUNCTION ------\n\n");
+	llist_t *stack = llist_create();
+	tree *nearest_node =
+	    kd_tree_nearest_neighbor(root, 18.334138,-66.066365, 10, stack, 0);
+
+	llist_print(stack, (void (*)(void *))stack_print);
+
+	printf("\n------ END OF CHECKS ------\n\n");
+
+////////////////////////////////////////////////////////////////////////////////
+	destroy_kd_tree(&root);
+	llist_destroy(&stack, (void (*)(void *))stack_destroy);
 	fclose(fp);
 
 }

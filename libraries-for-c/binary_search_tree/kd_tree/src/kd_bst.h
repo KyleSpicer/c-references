@@ -10,9 +10,13 @@
  */
 
 #include <stdbool.h>
+#include <limits.h>
+#include "llist.h"
 
 #ifndef BINARY_SEARCH_TREE_H
 #define BINARY_SEARCH_TREE_H
+
+typedef struct tree tree;
 
 struct tree {
 	struct tree *parent;
@@ -20,11 +24,12 @@ struct tree {
 	struct tree *right;
 	double x_coord;
 	double y_coord;
+	double distance;
 	int number_nodes;
-	int level;
 
 };
-typedef struct tree tree;
+
+typedef struct element_t element_t;
 
 /**
  * @brief Create a node object
@@ -32,7 +37,7 @@ typedef struct tree tree;
  * @param value - int data to store within node
  * @return tree* 
  */
-tree *create_node(double x, double y, int level);
+tree *kd_create_node(double x, double y);
 
 /**
  * @brief inserts new node into tree struct
@@ -50,99 +55,35 @@ tree *kd_tree_insert(tree * search_tree, tree * new_node, int method);
  * @param data - data you are looking to retrieve in tree
  * @return tree* 
  */
-tree* search(tree *root, double x_val, double y_val, int method);
+tree *search(tree * root, double x_val, double y_val, int method);
 
+tree *remove_node(tree * root, tree * node_to_remove);
 
-/**
- * @brief returns leftmost path from root to leaf
- * 
- * @param root 
- * @return tree* 
- */
+void printvisual(tree * root);
+
+int kd_tree_size(tree * root);
+
+bool kd_tree_is_empty(tree * root);
+
+void destroy_kd_tree(tree ** root);
+
 tree *minimum(tree * root);
 
-/**
- * @brief Maximum must be in the rightmost path from root to leaf.
- * 
- * @param root 
- * @return tree* 
- */
 tree *maximum(tree * root);
 
-/**
- * @brief returns the approximate number of nodes within tree
- * 
- * @param root 
- * @return int 
- */
-int tree_size(tree * root);
+tree *kd_tree_remove_node(tree ** root, double x_val, double y_val);
 
-/**
- * @brief prints root, left, and right node of called node
- * 
- * @param root 
- */
-void print(tree * root);
+double find_distance(double x1, double x2, double y1, double y2);
 
-/**
- * @brief frees and returns specified node
- * 
- * @param root 
- * @param data 
- * @return tree* 
- */
-tree *delete_node(tree ** t, int d);
+// returns the closest KD Tree element to the coordinates provided.
+tree *kd_tree_nearest_neighbor(tree * root, double x, double y, double radius,
+			       llist_t * stack, int method);
 
-/**
- * @brief deletes each node, frees point to struct, sets mem address to NULL
- * 
- * @param root 
- */
-void delete(tree ** root);
+// void preorder(tree * root, void (*action_func)(tree *));
+// void postorder(tree * root, void (*action_func)(tree *));
+// void inorder(tree * root, void (*action_func)(tree *));
+// void levelorder(tree * root, void (*action_func)(tree *));
 
-/**
- * @brief processes a node then recurses down the left subtree before
- * recursing down the right subtree.
- * 
- * @param root 
- * @param action_func 
- */
-void preorder(tree * root, void (*action_func)(tree*));
+#endif				/* BINARY_SEARCH_TREE_H */
 
-/**
- * @brief recurses down the left subtree of a node before recursing down the
- * right subtree, then processes the node.
- * 
- * @param root 
- * @param action_func 
- */
-void postorder(tree * root, void (*action_func)(tree*));
-
-/**
- * @brief recurses down the left subtree of a node then processes the 
- * node before recursing down the right subtree.
- * 
- * @param root 
- * @param action_func 
- */
-void inorder(tree * root, void (*action_func)(tree*));
-
-/**
- * @brief processes every node in a level before descending to the next
- * level. Requires a queue struct.
- * 
- * @param root 
- * @param action_func 
- */
-void levelorder(tree* root, void (*action_func)(tree*));
-
-void printvisual(tree *root);
-
-int kd_tree_size(tree *root);
-
-bool kd_tree_is_empty(tree *root); 
-
-
-#endif /* BINARY_SEARCH_TREE_H */
 /*** end of file ***/
-

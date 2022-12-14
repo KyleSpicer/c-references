@@ -11,21 +11,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <math.h>
 
 #include "kd_bst.h"
 #include "llist.h"
 #include "spice_file_io.h"
 
-tree *create_node(double x, double y, int level)
+double closest_distance = INT_MAX;
+
+tree *kd_create_node(double x, double y)
 {
-	if (!x || !y || !level) {
-		return NULL;
-	}
+	// No ABCs because all incoming values could be 0
+
 	tree *new_node;
 	new_node = calloc(1, sizeof(tree));
 	new_node->x_coord = x;
 	new_node->y_coord = y;
-	new_node->level = level;
 
 	return new_node;
 }
@@ -92,92 +93,224 @@ tree *search(tree * root, double x_val, double y_val, int method)
 {
 	if (!root) {
 		return NULL;
-	}	
-
+	}
 	// check root values first, if match, retun root
-	if (root->x_coord == x_val
-	    && root->y_coord == y_val) {
+	if (root->x_coord == x_val && root->y_coord == y_val) {
 		return root;
 	}
-
 	// // if level is even, comp x values
 	else if (!method) {
 		if (root->x_coord > x_val) {
-		
 			return search(root->left, x_val, y_val, !method);
+		} else {
+			return search(root->right, x_val, y_val, !method);
 		}
-		return search(root->right, x_val, y_val, !method);
 	}
 	// // if level is odd, comp y value
 	else {
 		if (root->y_coord > y_val) {
 			return search(root->left, x_val, y_val, !method);
+		} else {
+			return search(root->right, x_val, y_val, !method);
 		}
-		return search(root->right, x_val, y_val, !method);
 	}
 }
 
-// tree *minimum(tree * root)
-// {
-//      //Minimum must be in the leftmost path from root to leaf.
-//      if (!root) {
-//              return NULL;
-//      }
+void destroy_kd_tree(tree ** root)
+{
+	if (!root || !*root) {
+		return;
+	}
 
-//      if (root->left == 0) {
-//              return root;
-//      }
-//      return minimum(root->left);
-// }
+	destroy_kd_tree(&((*root)->left));
+	destroy_kd_tree(&((*root)->right));
+	free(*root);
+	*root = NULL;
+}
 
-// tree *maximum(tree * root)
-// {
-//      //Maximum must be in the rightmost path from root to leaf.
-//      if (!root) {
-//              return NULL;
-//      }
+struct trunk {
+	struct trunk *prev;
+	const char *str;
+};
 
-//      if (root->right == 0) {
-//              return root;
-//      }
-//      return maximum(root->right);
-// }
+static void print_trunks(struct trunk *p)
+{
+	if (!p) {
+		return;
+	}
+	print_trunks(p->prev);
+	printf("%s", p->str);
+}
 
-// int tree_size(tree * root)
-// {
-//      if (!root) {
-//              return 0;
-//      }
+static void print_recursive(tree * root, struct trunk *prev, int is_left)
+{
+	if (!root) {
+		return;
+	}
 
-//      int sum = 1;
-//      sum += tree_size(root->left);
-//      sum += tree_size(root->right);
-//      return sum;
-// }
+	struct trunk this_disp = { prev, "     " };
+	const char *prev_str = this_disp.str;
+	print_recursive(root->right, &this_disp, 1);
 
-// void print(tree * root)
-// {
-//      // pre-order traversal
-//      if (!root) {
-//              return;
-//      }
+	if (!prev) {
+		this_disp.str = "---";
+		printf("\n");
+	} else if (is_left) {
+		this_disp.str = ".--";
+		printf("\n");
+		prev_str = "    |";
+	} else {
+		this_disp.str = "`--";
+		printf("\n");
+		prev->str = prev_str;
+	}
+	// printf("\n");
+	print_trunks(&this_disp);
+	printf("(%0.f, %0.f)\n", root->x_coord, root->y_coord);
 
-//      if (root != 0) {
-//              int left = 0;
-//              int right = 0;
-//              if (root->left) {
-//                      left = root->left->data;
-//              }
-//              if (root->right) {
-//                      right = root->right->data;
-//              }
-//              printf("parent = %d, left = %d, right = %d\n", root->data, left,
-//                     right);
-//              print(root->left);
-//              print(root->right);
+	if (prev) {
+		prev->str = prev_str;
+	}
+	this_disp.str = "    |";
 
-//      }
-// }
+	print_recursive(root->left, &this_disp, 0);
+	if (!prev) {
+		puts("");
+	}
+}
+
+void printvisual(tree * root)
+{
+	if (!root) {
+		return;
+	}
+	print_recursive(root, NULL, 0);
+
+}
+
+int kd_tree_size(tree * root)
+{
+	if (!root) {
+		return -1;
+	}
+	return root->number_nodes;
+}
+
+bool kd_tree_is_empty(tree * root)
+{
+	if (!root) {
+		return NULL;
+	}
+
+	if (root->number_nodes == 0) {
+		return true;
+	}
+	return false;
+}
+
+tree *minimum(tree * root)
+{
+	if (!root) {
+		return NULL;
+	}
+
+	if (0 == root->left) {
+		return root;
+	}
+	return minimum(root->left);
+}
+
+tree *maximum(tree * root)
+{
+	if (!root) {
+		return NULL;
+	}
+
+	if (0 == root->right) {
+		return root;
+	}
+	return maximum(root->right);
+}
+
+tree *kd_tree_remove_node(tree ** root, double x_val, double y_val)
+{
+	if (!root) {
+		return NULL;
+	}
+
+	tree *temp = 0;
+	tree *node = search(*root, x_val, y_val, 0);
+	if (!node) {
+		return NULL;
+	}
+	// ROOT NODE: treat special because root has no parents to relink
+	// only need special handling for no children or one child
+	if (node->parent == 0) {
+		if (0 == node->left && 0 == node->right) {
+			free(node);
+			*root = 0;
+			return *root;
+		}
+		if (0 == node->left || node->right) {
+			temp = (0 == node->left) ? node->right : node->left;
+			temp->parent = 0;
+			free(node);
+			*root = temp;
+			return *root;
+		}
+	}
+	return NULL;
+}
+
+double find_distance(double x1, double x2, double y1, double y2)
+{
+	// No ABCs because all values could potentially be 0
+
+	double distance =
+	    sqrt(((x2 - x1) * (x2 - x1)) + ((y2 - y1) * (y2 - y1)));
+
+	return distance;
+}
+
+tree *kd_tree_nearest_neighbor(tree * root, double x, double y, double radius,
+			       llist_t * stack, int method)
+{
+	if (!root) {
+		return NULL;
+	}
+	// find distance
+	double distance = find_distance(root->x_coord, x, root->y_coord, y);
+	printf("distance = %f\n", distance);
+	
+	if (distance <= radius) {
+		root->distance = distance;
+		push(stack, root);
+	}
+	
+
+	// // if level is even, comp x values
+	if (!method) {
+		if (root->x_coord > x) {
+			return kd_tree_nearest_neighbor(root->left, x, y,
+							radius, stack, !method);
+		} else {
+			return kd_tree_nearest_neighbor(root->right, x, y,
+							radius, stack, !method);
+		}
+	}
+	// // if level is odd, comp y value
+	else {
+		if (root->y_coord > y) {
+			return kd_tree_nearest_neighbor(root->left, x, y,
+							radius, stack, !method);
+		} else {
+			return kd_tree_nearest_neighbor(root->right, x, y,
+							radius, stack, !method);
+		}
+	}
+}
+
+/*** end of file ***/
 
 // tree *delete_node(tree ** t, int d)
 // {
@@ -255,18 +388,6 @@ tree *search(tree * root, double x_val, double y_val, int method)
 //   return tmp;
 // }
 
-void delete(tree ** root)
-{
-	if (!root || !*root) {
-		return;
-	}
-
-	delete(&((*root)->left));
-	delete(&((*root)->right));
-	free(*root);
-	*root = NULL;
-}
-
 // void preorder(tree * root, void (*action_func)(tree *))
 // {
 //      if (!root) {
@@ -321,85 +442,3 @@ void delete(tree ** root)
 //      }
 //      llist_destroy(&queue, free);
 // }
-
-struct trunk {
-	struct trunk *prev;
-	const char *str;
-};
-
-static void print_trunks(struct trunk *p)
-{
-	if (!p) {
-		return;
-	}
-	print_trunks(p->prev);
-	printf("%s", p->str);
-}
-
-static void print_recursive(tree * root, struct trunk *prev, int is_left)
-{
-	if (!root) {
-		return;
-	}
-
-	struct trunk this_disp = { prev, "     " };
-	const char *prev_str = this_disp.str;
-	print_recursive(root->right, &this_disp, 1);
-
-	if (!prev) {
-		this_disp.str = "---";
-		printf("\n");
-	} else if (is_left) {
-		this_disp.str = ".--";
-		printf("\n");
-		prev_str = "    |";
-	} else {
-		this_disp.str = "`--";
-		printf("\n");
-		prev->str = prev_str;
-	}
-	// printf("\n");
-	print_trunks(&this_disp);
-	printf("(%.0f, %.0f)\n", root->x_coord, root->y_coord);
-
-	if (prev) {
-		prev->str = prev_str;
-	}
-	this_disp.str = "    |";
-
-	print_recursive(root->left, &this_disp, 0);
-	if (!prev) {
-		puts("");
-	}
-}
-
-void printvisual(tree * root)
-{
-	if (!root) {
-		return;
-	}
-	print_recursive(root, NULL, 0);
-
-}
-
-int kd_tree_size(tree * root)
-{
-	if (!root) {
-		return -1;
-	}
-	return root->number_nodes;
-}
-
-bool kd_tree_is_empty(tree * root)
-{
-	if (!root) {
-		return NULL;
-	}
-
-	if (root->number_nodes == 0) {
-		return true;
-	}
-	return false;
-}
-
-/*** end of file ***/

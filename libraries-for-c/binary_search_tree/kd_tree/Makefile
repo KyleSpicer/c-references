@@ -1,4 +1,4 @@
-.PHONY: check debug clean all valgrind profile run diff
+.PHONY: check debug clean all valgrind profile run indent
 
 CFLAGS := -std=c18
 CFLAGS += -Wall -Wextra -Wpedantic -Wwrite-strings -Wstack-usage=1024
@@ -21,6 +21,7 @@ CHECK := $(BIN)_check
 TSTS := $(wildcard $(TST_DIR)/*.c)
 TST_OBJS += $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS))
 TST_OBJS := $(filter-out $(OBJ_DIR)/$(BIN).o, $(OBJS))
+TST_OBJS := $(filter-out $(OBJ_DIR)/kd_driver.o, $(OBJS))
 TST_OBJS += $(patsubst $(TST_DIR)/%.c, $(OBJ_DIR)/%.o, $(TSTS))
 TST_LIBS := -lcheck -lm -pthread -lrt -lsubunit
 
@@ -32,7 +33,7 @@ debug: $(BIN)
 check: $(CHECK)
 
 clean: 
-	@rm -rf $(OBJ_DIR) $(BIN) $(CHECK) *.c~
+	@rm -rf $(OBJ_DIR) $(BIN) $(CHECK)
 	clear
 
 profile: CFLAGS += -g3 -pg
@@ -40,10 +41,14 @@ profile: $(BIN)
 
 valgrind: CFLAGS += -g3
 valgrind: $(BIN) 
-	valgrind $(VAL_FLAGS) ./$(BIN) -f coords.csv
+	valgrind $(VAL_FLAGS) ./$(BIN) -f gps.csv
 
 run: $(BIN)
-	./$(BIN) -f coords.csv
+	./$(BIN) -f gps.csv
+
+indent:
+	indent -linux ./src/*.c ./src/*.h
+	@rm ./src/*.c~ ./src/*.h~
 
 $(OBJ_DIR):
 	@mkdir -p $@
@@ -51,13 +56,13 @@ $(OBJ_DIR):
 $(OBJS): | $(OBJ_DIR)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@ -lm
 
 $(OBJ_DIR)/%.o: $(TST_DIR)/%.c
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@ -lm
 
 $(BIN): $(OBJS)
-	$(CC) $(CFLAGS) $^ -o $@
+	$(CC) $(CFLAGS) $^ -o $@ -lm
 
 $(CHECK): $(TST_OBJS)
 	$(CC) $(CFLAGS) $^ -o $@ $(TST_LIBS)

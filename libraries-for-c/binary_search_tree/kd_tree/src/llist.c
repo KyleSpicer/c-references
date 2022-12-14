@@ -12,245 +12,215 @@
 #include <stdlib.h>
 
 #include "llist.h"
+#include "kd_bst.h"
 
-typedef struct node_t
-{
-    void *          data;
-    struct node_t * next;
+typedef struct node_t {
+	void *data;
+	struct node_t *next;
 } node_t;
 
-struct llist_t
-{
-    node_t * head;
-    node_t * tail;
-    uint64_t count;
+struct llist_t {
+	node_t *head;
+	node_t *tail;
+	uint64_t count;
 };
 
-static node_t * create_node(void * data);
+static node_t *create_node(void *data);
 
-llist_t *
-llist_create()
+llist_t *llist_create()
 {
-    return calloc(1, sizeof(llist_t));
+	return calloc(1, sizeof(llist_t));
 }
 
-static node_t *
-create_node(void * data)
+static node_t *create_node(void *data)
 {
-    node_t * node = NULL;
+	node_t *node = NULL;
 
-    node = calloc(1, sizeof(*node));
-    if (node)
-    {
-        node->data = data;
-    }
+	node = calloc(1, sizeof(*node));
+	if (node) {
+		node->data = data;
+	}
 
-    return node;
+	return node;
 }
 
-void
-llist_destroy(llist_t **llist, void (*destroy_data)(void *))
+void llist_destroy(llist_t ** llist, void (*destroy_data)(void *))
 {
-    if (!llist)
-    {
-        return;
-    }
-    llist_t *p_llist = *llist;
+	if (!llist) {
+		return;
+	}
+	llist_t *p_llist = *llist;
 
-    node_t * temp = p_llist->head;
-    while (temp)
-    {
-        p_llist->head = temp->next;
-        destroy_data(temp->data);
-        free(temp);
-        temp = p_llist->head;
-    }
+	node_t *temp = p_llist->head;
+	while (temp) {
+		p_llist->head = temp->next;
+		destroy_data(temp->data);
+		free(temp);
+		temp = p_llist->head;
+	}
 
-    free(*llist);
-    *llist = NULL;
+	free(*llist);
+	*llist = NULL;
 }
 
-int
-llist_insert_front(llist_t * p_llist, void * data)
+int llist_insert_front(llist_t * p_llist, void *data)
 {
-    int ret = 0;
-    if (!p_llist || !data)
-    {
-        goto INSERT_FRONT;
-    }
+	int ret = 0;
+	if (!p_llist || !data) {
+		goto INSERT_FRONT;
+	}
 
-    node_t * node = create_node(data);
-    if (!node)
-    {
-        goto INSERT_FRONT;
-    }
+	node_t *node = create_node(data);
+	if (!node) {
+		goto INSERT_FRONT;
+	}
 
-    if (!p_llist->tail)
-    {
-        p_llist->tail = node;
-    }
+	if (!p_llist->tail) {
+		p_llist->tail = node;
+	}
 
-    node->next    = p_llist->head;
-    p_llist->head = node;
-    p_llist->count++;
-    ret = 1;
+	node->next = p_llist->head;
+	p_llist->head = node;
+	p_llist->count++;
+	ret = 1;
 
-INSERT_FRONT:
-    return ret;
+ INSERT_FRONT:
+	return ret;
 }
 
-int
-llist_insert_back(llist_t * p_llist, void * data)
+int llist_insert_back(llist_t * p_llist, void *data)
 {
-    int ret = 0;
-    if (!p_llist || !data)
-    {
-        goto INSERT_BACK;
-    }
+	int ret = 0;
+	if (!p_llist || !data) {
+		goto INSERT_BACK;
+	}
 
-    node_t * node = create_node(data);
-    if (!node)
-    {
-        goto INSERT_BACK;
-    }
+	node_t *node = create_node(data);
+	if (!node) {
+		goto INSERT_BACK;
+	}
 
-    if (p_llist->tail)
-    {
-        p_llist->tail->next = node;
-        p_llist->tail       = node;
-    }
-    else
-    {
-        p_llist->head = node;
-        p_llist->tail = node;
-    }
+	if (p_llist->tail) {
+		p_llist->tail->next = node;
+		p_llist->tail = node;
+	} else {
+		p_llist->head = node;
+		p_llist->tail = node;
+	}
 
-    p_llist->count++;
-    ret = 1;
+	p_llist->count++;
+	ret = 1;
 
-INSERT_BACK:
-    return ret;
+ INSERT_BACK:
+	return ret;
 }
 
 /* will print every element in a link list until NULL */
-void
-llist_print(llist_t * p_llist, void (*print_data)(void *))
+void llist_print(llist_t * p_llist, void (*print_data)(void *))
 {
-    if (!p_llist)
-    {
-        return;
-    }
+	if (!p_llist) {
+		return;
+	}
 
-    node_t * node = p_llist->head;
-    while (node)
-    {
-        print_data(node->data);
-        node = node->next;
-    }
+	node_t *node = p_llist->head;
+	while (node) {
+		print_data(node->data);
+		node = node->next;
+	}
 }
 
-void *
-extract_head(llist_t * p_llist)
+void *extract_head(llist_t * p_llist)
 {
-    void * data = NULL; // establishing default return val
-    if (p_llist->head)
-    {
-        node_t * curr = p_llist->head;
-        p_llist->head = curr->next;
-        
-        if(!p_llist->head)
-        {
-            p_llist->tail = p_llist->head; // sets tail to NULL if head was NULL
-        }
+	void *data = NULL;	// establishing default return val
+	if (p_llist->head) {
+		node_t *curr = p_llist->head;
+		p_llist->head = curr->next;
 
-        data = curr->data; // person struct data
-        p_llist->count--; // decrements counter after removal of node
-        free(curr); // free node
-    
-    }
+		if (!p_llist->head) {
+			p_llist->tail = p_llist->head;	// sets tail to NULL if head was NULL
+		}
 
-    return data;
+		data = curr->data;	// person struct data
+		p_llist->count--;	// decrements counter after removal of node
+		free(curr);	// free node
+	}
+
+	return data;
 }
 
-void *
-extract_tail(llist_t * p_llist)
+void *extract_tail(llist_t * p_llist)
 {
-    void * data = NULL; // create default return val
-    if(!p_llist || !p_llist->head)
-        {
-            return data;
-        }
+	void *data = NULL;	// create default return val
+	if (!p_llist || !p_llist->head) {
+		return data;
+	}
 
+	node_t *temp = NULL;
+	node_t *curr = p_llist->head;
 
-    node_t * temp = NULL;
-    node_t * curr = p_llist->head;
+	while (curr->next) {
+		temp = curr;
+		curr = curr->next;
+	}
 
+	p_llist->tail = temp;
 
-    while(curr->next)
-    {
-        temp = curr;
-        curr = curr->next;
-    }
+	if (temp) {
+		temp->next = NULL;
+	}
 
-    p_llist->tail = temp;
+	else {
+		p_llist->head = NULL;
+	}
 
-    if(temp)
-    {
-        temp->next = NULL;
-    }
-    
-    else
-    {
-        p_llist->head = NULL;
-    }
-
-    p_llist->count--;
-    data = curr->data;
-    free(curr);   
-    return data;
+	p_llist->count--;
+	data = curr->data;
+	free(curr);
+	return data;
 }
 
 /* push node to top of stack */
-int push(llist_t * p_stk, void * data)
+int push(llist_t * p_stk, void *data)
 {
-    return llist_insert_front(p_stk, data);
+	return llist_insert_front(p_stk, data);
 }
 
 /* pop node from top of stack */
-void * pop(llist_t * p_stk)
+void *pop(llist_t * p_stk)
 {
-    return extract_head(p_stk);
+	return extract_head(p_stk);
 }
 
 /* add back -enqueue */
-int enqueue(llist_t * llist, void * data)
+int enqueue(llist_t * llist, void *data)
 {
-    if(!llist || !data){
-        return 0;
-    }
-    return llist_insert_back(llist, data);
+	if (!llist || !data) {
+		return 0;
+	}
+	return llist_insert_back(llist, data);
 }
 
 /* remove front - dequeue */
-void * dequeue(llist_t * p_queue)
+void *dequeue(llist_t * p_queue)
 {
-    return extract_head(p_queue);
+	return extract_head(p_queue);
 }
 
 /* returns llist->count value */
 int list_size(llist_t * llist)
 {
-    return llist->count;
+	return llist->count;
 }
 
 /* peek head data */
-void * peek (llist_t * llist)
+void *peek(llist_t * llist)
 {
-    return llist->head->data;
+	return llist->head->data;
 }
 
-int is_list_empty(struct llist_t* list)
+int is_list_empty(struct llist_t *list)
 {
 	return list->count;
 }
+
 /* end of file */
