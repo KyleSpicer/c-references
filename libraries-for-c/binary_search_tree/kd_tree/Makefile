@@ -41,10 +41,10 @@ profile: $(BIN)
 
 valgrind: CFLAGS += -g3
 valgrind: $(BIN) 
-	valgrind $(VAL_FLAGS) ./$(BIN) -f gps.csv
+	valgrind $(VAL_FLAGS) ./$(BIN) -f gps.csv -x 37 -y 120 -d 10000 -k 10
 
 run: $(BIN)
-	./$(BIN) -f gps.csv
+	./$(BIN) -f gps.csv -x 70 -y 190 -d 1000 -k 3
 
 indent:
 	indent -linux ./src/*.c ./src/*.h

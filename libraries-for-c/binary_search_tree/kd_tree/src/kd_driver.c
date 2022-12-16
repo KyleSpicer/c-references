@@ -1,5 +1,4 @@
 #include "kd_bst.h"
-#include "llist.h"
 #include "spice_file_io.h"
 
 #include <stdlib.h>
@@ -9,30 +8,10 @@
 #include <float.h>
 #include <string.h>
 #include <ctype.h>
+#include <math.h>
 
 #define MAXCHAR 64
 #define SIZENUM 4
-
-// #if (double == 0)
-// #if (fabs(double) < DBL_EPSILON)
-
-void stack_print(tree * node)
-{
-	if (!node) {
-		return;
-	}
-
-	printf("Node: (%f, %f) distance is %f\n", node->x_coord,
-	       node->y_coord, node->distance);
-}
-
-void stack_destroy(llist_t * stack)
-{
-	if(!stack) {
-		return;
-	}
-	stack = NULL;
-}
 
 int main(int argc, char *argv[])
 {
@@ -41,41 +20,78 @@ int main(int argc, char *argv[])
 	static struct option long_options[] = {
 		{"file", required_argument, NULL, 'f'},
 		{"help", no_argument, NULL, 'h'},
-		{"distance", required_argument, NULL, 'd'}
+		{"distance", required_argument, NULL, 'd'},
+		{"lat", required_argument, NULL, 'x'},
+		{"lon", required_argument, NULL, 'y'},
+		{"number", required_argument, NULL, 'k'}
 	};
 
+	char *arguments = NULL;
 	char *file_name = NULL;
-
-	// while loop for switch cases
+	char *user_lat = NULL;
+	char *user_lon = NULL;
+	char *radius = NULL;
+	char *node_number = NULL;
+	double user_radius = 0;
+	double user_x = DBL_MAX;
+	double user_y = DBL_MAX;
+	double user_node_amount = 0;
 	int opt = 0;
+
 	while ((opt =
-		getopt_long(argc, argv, "hf:", long_options,
+		getopt_long(argc, argv, "hf:d:x:y:k:", long_options,
 			    &option_index)) != -1) {
 		switch (opt) {
-		case 'h':	// help option
-			printf("help message\n");
+		case 'h':
+			display_usage_statement();
 			exit(1);
 			break;
 
-		case 'f':	// file option
+		case 'f':
 			file_name = optarg;	// placing user provided file name in var
 			break;
 
 		case 'd':	// distance
-			// distance provided by user
+			radius = optarg;
+			user_radius = strtod(radius, &arguments);
+			break;
+
+		case 'x':
+			user_lat = optarg;
+			user_x = strtod(user_lat, &arguments);
+			break;
+
+		case 'y':
+			user_lon = optarg;
+			user_y = strtod(user_lon, &arguments);
+			break;
+
+		case 'k':
+			node_number = optarg;
+			user_node_amount = strtod(node_number, &arguments);
+			printf("node amount = %f\n", user_node_amount);
 			break;
 
 		case '?':	// unknown operators handling
-			// help / usage statement
+			printf("Unknown Arguments: %s\n", optarg);
+			display_usage_statement();
 			exit(1);
 			break;
 
 		default:
+			display_usage_statement();
+			exit(1);
 			break;
 		}
 	}
 
-	// open and verify file
+	// if not provided, exit
+	if (!file_name || !user_lat || !user_lon || !radius) {
+		printf("\nNot enough arguments to complete program.\n");
+		display_usage_statement();
+		exit(1);
+	}
+	// open and validate file
 	FILE *fp = file_open_and_verify(file_name);
 	if (!fp) {
 		printf("Unable to open %s\n", file_name);
@@ -85,7 +101,6 @@ int main(int argc, char *argv[])
 	tree *root = NULL;	// create root
 	char buffer[MAXCHAR] = { '\0' };	// buffer for incoming line 
 
-	printf("\nCoordinates: \n");
 	// cycle through csv and grab each line
 	while (fgets(buffer, MAXCHAR, fp) != 0) {
 		int len = strnlen(buffer, MAXCHAR) - 1;
@@ -93,7 +108,7 @@ int main(int argc, char *argv[])
 		if ('\n' == buffer[len]) {
 			buffer[len] = '\0';
 		}
-		// passes over first line in file, if not digits
+		// passes over line in file, if not digits
 		if (!isdigit(*buffer)) {
 			continue;
 		}
@@ -109,7 +124,6 @@ int main(int argc, char *argv[])
 		if ('\0' != *coords) {
 			break;
 		}
-		// printf("(x: %.1f, y: %.1f)\n", x_coor, y_coor);
 
 		tree *new_node = kd_create_node(x_coor, y_coor);
 		if (!root) {
@@ -123,39 +137,35 @@ int main(int argc, char *argv[])
 		}
 	}
 
-////////////////////////////////////////////////////////////////////////////////
-
 	// printf("\nPopulated KD Tree: \n");
 	// printvisual(root);
 
-	printf("\n------ START FUNCTION CHECKS ------\n\n");
-
-	printf("Total nodes in tree: %d\n", root->number_nodes);
-
-	tree *minnode = minimum(root);
-	printf("Smallest Node = (%0.f, %0.f)\n", minnode->x_coord,
-	       minnode->y_coord);
-
-	tree *maxnode = maximum(root);
-	printf("Largest Node  = (%0.f, %0.f)\n", maxnode->x_coord,
-	       maxnode->y_coord);
-
-////////////////////////////////////////////////////////////////////////////////
-
 	printf("\n------ CHECKING NEAREST NEIGHBOR FUNCTION ------\n\n");
-	llist_t *stack = llist_create();
-	tree *nearest_node =
-	    kd_tree_nearest_neighbor(root, 18.334138,-66.066365, 10, stack, 0);
 
-	llist_print(stack, (void (*)(void *))stack_print);
+	tree *array;		// basic container for array
+	array = calloc(root->number_nodes, sizeof(tree));
+	if (!array) {
+		printf("Unable to create array.\n");
+		exit(1);
+	}
+
+	kd_tree_nearest_neighbor(root, user_x, user_y, user_radius, 0, array);
+
+	// array sorting function
+
+	for (int i = 0; i < (int)user_node_amount; i++) {
+		if (!array[i].x_coord) {
+			continue;
+		}
+		printf("#%d - Node: x: %f, y: %f is a distance of %f\n", i + 1,
+		       array[i].x_coord, array[i].y_coord, array[i].distance);
+	}
 
 	printf("\n------ END OF CHECKS ------\n\n");
 
-////////////////////////////////////////////////////////////////////////////////
 	destroy_kd_tree(&root);
-	llist_destroy(&stack, (void (*)(void *))stack_destroy);
+	free(array);
 	fclose(fp);
-
 }
 
 /*** end of file ***/

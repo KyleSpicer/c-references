@@ -11,10 +11,9 @@
 
 #include <stdbool.h>
 #include <limits.h>
-#include "llist.h"
 
-#ifndef BINARY_SEARCH_TREE_H
-#define BINARY_SEARCH_TREE_H
+#ifndef KD_BINARY_SEARCH_TREE_H
+#define KD_BINARY_SEARCH_TREE_H
 
 typedef struct tree tree;
 
@@ -26,10 +25,7 @@ struct tree {
 	double y_coord;
 	double distance;
 	int number_nodes;
-
 };
-
-typedef struct element_t element_t;
 
 /**
  * @brief Create a node object
@@ -77,7 +73,7 @@ double find_distance(double x1, double x2, double y1, double y2);
 
 // returns the closest KD Tree element to the coordinates provided.
 tree *kd_tree_nearest_neighbor(tree * root, double x, double y, double radius,
-			       llist_t * stack, int method);
+			       int method, tree * array);
 
 // void preorder(tree * root, void (*action_func)(tree *));
 // void postorder(tree * root, void (*action_func)(tree *));

@@ -14,7 +14,6 @@
 #include <math.h>
 
 #include "kd_bst.h"
-#include "llist.h"
 #include "spice_file_io.h"
 
 double closest_distance = INT_MAX;
@@ -273,39 +272,43 @@ double find_distance(double x1, double x2, double y1, double y2)
 }
 
 tree *kd_tree_nearest_neighbor(tree * root, double x, double y, double radius,
-			       llist_t * stack, int method)
+			       int method, tree * array)
 {
 	if (!root) {
 		return NULL;
 	}
 	// find distance
 	double distance = find_distance(root->x_coord, x, root->y_coord, y);
-	printf("distance = %f\n", distance);
-	
+	int array_total = 0;
+
 	if (distance <= radius) {
 		root->distance = distance;
-		push(stack, root);
+		if (0 == sizeof(*array)) {
+			array[0] = *root;
+			array_total += 1;
+		} else {
+			array[array_total] = *root;
+			array += 1;
+		}
 	}
-	
-
-	// // if level is even, comp x values
+	// if level is even, comp x values
 	if (!method) {
 		if (root->x_coord > x) {
 			return kd_tree_nearest_neighbor(root->left, x, y,
-							radius, stack, !method);
+							radius, !method, array);
 		} else {
 			return kd_tree_nearest_neighbor(root->right, x, y,
-							radius, stack, !method);
+							radius, !method, array);
 		}
 	}
 	// // if level is odd, comp y value
 	else {
 		if (root->y_coord > y) {
 			return kd_tree_nearest_neighbor(root->left, x, y,
-							radius, stack, !method);
+							radius, !method, array);
 		} else {
 			return kd_tree_nearest_neighbor(root->right, x, y,
-							radius, stack, !method);
+							radius, !method, array);
 		}
 	}
 }
